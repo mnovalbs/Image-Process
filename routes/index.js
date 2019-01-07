@@ -11,6 +11,7 @@ function prepareImageSize(reqBody) {
   };
 
   try {
+    console.log(reqBody);
     if (reqBody.lg) {
       imageSize.lg = JSON.parse('[' + reqBody.lg + ']');
       imageSize.md = JSON.parse('[' + reqBody.md + ']');

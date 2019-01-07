@@ -14,9 +14,14 @@ function prepareImageSize(reqBody) {
     console.log(reqBody);
     if (reqBody.lg) {
       imageSize.lg = JSON.parse('[' + reqBody.lg + ']');
+    }
+    if (reqBody.md) {
       imageSize.md = JSON.parse('[' + reqBody.md + ']');
+    }
+    if (reqBody.sm) {
       imageSize.sm = JSON.parse('[' + reqBody.sm + ']');
     }
+    console.log(imageSize);
   } finally {
     return imageSize;
   }

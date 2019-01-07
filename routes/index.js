@@ -3,6 +3,24 @@ const router = express.Router();
 const md5 = require('md5');
 const ImageController = require('../controllers/ImageController');
 
+function prepareImageSize(reqBody) {
+  const imageSize = {
+    lg: [null, 600],
+    md: [null, 400],
+    sm: [null, 150],
+  };
+
+  try {
+    if (reqBody.lg) {
+      imageSize.lg = JSON.parse('[' + reqBody.lg + ']');
+      imageSize.md = JSON.parse('[' + reqBody.md + ']');
+      imageSize.sm = JSON.parse('[' + reqBody.sm + ']');
+    }
+  } finally {
+    return imageSize;
+  }
+}
+
 router.route('/')
 
   .get((req, res, next) => {
@@ -10,11 +28,13 @@ router.route('/')
   })
   
   .post((req, res) => {
-    const files = req.files.image;
+    const files = req.files && req.files.image;
 
     if (!files) {
       return res.status(400).json({ status: 'FAILED', message: 'No files uploaded' });
     }
+
+    const imageSize = prepareImageSize(req.body);
 
     const date = new Date();
     const randomString = (date.getMilliseconds()).toString() + Math.random().toString() + Math.random().toString() + Math.random().toString();
@@ -26,9 +46,9 @@ router.route('/')
         return res.status(400).json({ status: 'FAILED', message: 'Error while uploading files' });
       
       try {
-        const lg = await ImageController.resize(folderPath, fileName, 500, 300);
-        const md = await ImageController.resize(folderPath, fileName, 300, 200);
-        const sm = await ImageController.resize(folderPath, fileName, 150, 150);
+        const lg = await ImageController.resize(folderPath, fileName, imageSize.lg[0], imageSize.lg[1], 'lg');
+        const md = await ImageController.resize(folderPath, fileName, imageSize.md[0], imageSize.md[1], 'md');
+        const sm = await ImageController.resize(folderPath, fileName, imageSize.sm[0], imageSize.sm[1], 'sm');
 
         return res.json({ status: 'SUCCESS', message: 'Files uploaded', result: { ori: fileName, lg, md, sm } });
       } catch(e) {

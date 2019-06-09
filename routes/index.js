@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const md5 = require('md5');
+const fs = require('fs');
 const ImageController = require('../controllers/ImageController');
+const StorageController = require('../controllers/StorageController');
 
 function prepareImageSize(reqBody) {
   const imageSize = {
@@ -56,7 +58,28 @@ router.route('/')
         const md = await ImageController.resize(folderPath, fileName, imageSize.md[0], imageSize.md[1], 'md');
         const sm = await ImageController.resize(folderPath, fileName, imageSize.sm[0], imageSize.sm[1], 'sm');
 
-        return res.json({ status: 'SUCCESS', message: 'Files uploaded', result: { ori: fileName, lg, md, sm } });
+        // upload to storage
+        const storageOri = await StorageController.upload(folderPath + fileName, fileName);
+        const storageLg = await StorageController.upload(folderPath + lg, lg);
+        const storageMd = await StorageController.upload(folderPath + md, md);
+        const storageSm = await StorageController.upload(folderPath + sm, sm);
+
+        // remove from local
+        fs.unlinkSync(folderPath + fileName);
+        fs.unlinkSync(folderPath + lg);
+        fs.unlinkSync(folderPath + md);
+        fs.unlinkSync(folderPath + sm);
+
+        return res.json({ 
+          status: 'SUCCESS',
+          message: 'Files uploaded',
+          result: {
+            ori: storageOri,
+            lg: storageLg,
+            md: storageMd,
+            sm: storageSm
+          }
+        });
       } catch(e) {
         console.log(e);
         return res.status(400).json({ status: 'FAILED', message: 'Error while uploading files' });

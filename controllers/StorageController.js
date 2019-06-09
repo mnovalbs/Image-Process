@@ -7,7 +7,7 @@ const upload = async (filePath, fileName) => {
   try {
     await storage.bucket(bucketName).upload(filePath);
     await makePublic(fileName);
-    return true;
+    return fileName;
   } catch (e) {
     return false;
   }
@@ -16,7 +16,7 @@ const upload = async (filePath, fileName) => {
 const makePublic = async (fileName) => {
   try {
     await storage.bucket(bucketName).file(fileName).makePublic();
-    return true;
+    return fileName;
   } catch (e) {
     return false
   }

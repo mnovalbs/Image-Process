@@ -32,7 +32,7 @@ function prepareImageSize(reqBody) {
 router.route('/')
 
   .get((req, res, next) => {
-    res.render('index', { title: 'Express' });
+    res.json({ 'health': 'OK' });
   })
   
   .post((req, res) => {
